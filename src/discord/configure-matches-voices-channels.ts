@@ -1,62 +1,97 @@
-import { getHubMatches } from "@/faceit/faceit-api";
-import { hubId, matchesMock, positionCreateChannels } from "@/utils/global-constants";
+import { getHubMatches, getMatchInfo } from "@/faceit/faceit-api";
+import { Faction, HubMatch } from "@/models/interfaces/hub-matches";
+import { createDiscordChannel } from "@/utils/create-channel";
+import { hubId, positionCreateChannels } from "@/utils/global-constants";
 import { ChannelType, Message } from "discord.js";
+import { sleep } from "@/utils/time";
+import { MatchInfo } from "@/models/interfaces/match";
 
-export async function configureMatchesVoiceChannels(message: Message) {
-  try {
-    // const matches = await getTeamsNames();
-    const matches = matchesMock
-    await createMatchesVoiceChannels(matches, message);
+interface MatchHandler {
+  channelsId: string[];
+  category: string;
+}
 
-  } catch (error) {
-    console.log(error);
+interface Context {
+  match: HubMatch,
+  message: Message,
+}
+
+export async function getMatches(message: Message) {
+  if (!hubId) throw new Error('HubId not found! (hubId)')
+  const matches = await getHubMatches(hubId)
+
+  for (const match of matches.items) {
+    handleNewMatch({ match, message })
   }
 }
 
-async function getTeamsNames() {
-  try {
-    if (!hubId) {
-      throw new Error("Hub id not found");
+async function handleNewMatch(ctx: Context) {
+  const handler = await createChannelsAndCategory(ctx.match, ctx.message) // criar os canais no discord
+  const { payload } = await getMatchInfo(ctx.match.match_id)
+
+  await forMatchToEnd(payload) // esperar enquanto a partida não está cancelada/finalizada
+  deleteChannelsAndCategory(handler, ctx.message) // se "FINISHED" -> deletar os canais
+}
+
+async function forMatchToEnd(match: MatchInfo): Promise<void> {
+  while (match.status != 'FINISHED') {
+    await sleep(30);
+    console.log(`Match ${match.id} is ${match.status}`)
+    const { payload } = await getMatchInfo(match.id)
+    match = payload
+  }
+
+  return;
+}
+
+async function createChannelsAndCategory(match: HubMatch, message: Message): Promise<MatchHandler> {
+  const channelsPosition = +(positionCreateChannels || '0')
+  const channelsId: string[] = []
+  const teams: Faction[] = Object.values(match.teams)
+  const matchName = `Partida ${match.teams.faction1.name} x ${match.teams.faction2.name}`
+
+  const categoryExists = message.guild?.channels.cache.find(channel => channel.name === matchName)
+  if (categoryExists) {
+    return {
+      channelsId: categoryExists.guild.channels.cache
+        .filter(channel => channel.parentId === categoryExists.id)
+        .map(channel => channel.id),
+      category: categoryExists.id
     }
+  }
 
-    const { items } = await getHubMatches(hubId);
+  const categoryChannel = await createDiscordChannel(
+    matchName,
+    ChannelType.GuildCategory,
+    channelsPosition,
+    message
+  )
 
-    return items.map((match) => {
-      return [match.teams.faction1.name, match.teams.faction2.name];
-    });
-  } catch (error) {
-    console.log(error);
+  for (const team of teams) {
+    const voiceChannel = await createDiscordChannel(
+      team.name.replace('team_', 'Time '),
+      ChannelType.GuildVoice,
+      channelsPosition,
+      message,
+      categoryChannel
+    )
+
+    channelsId.push(voiceChannel.id)
+  }
+
+  return {
+    channelsId,
+    category: categoryChannel.id
   }
 }
 
-async function createMatchesVoiceChannels(matches: any, message: Message) {
-  try {
-    const guild = message.guild;
+function deleteChannelsAndCategory(matchHandler: MatchHandler, message: Message) {
+  console.log('Deletando canais e categoria da partida: ', matchHandler)
 
-    if (!guild) {
-      throw new Error("Guild not found");
-    }
+  const discordChannels = message.guild?.channels.cache
+  const channels = discordChannels?.filter(channel => matchHandler.channelsId.includes(channel.id))
+  const category = discordChannels?.find(channel => channel.id === matchHandler.category)
 
-    for (const match of matches) {
-      if (guild.channels.cache.find(channel => channel.name === `Partida ${match[0]} x ${match[1]}`)) continue
-
-      if (!positionCreateChannels) throw new Error('Position not found! (positionCreateChannels)')
-
-      const category = await guild.channels.create({
-        name: `Partida ${match[0]} x ${match[1]}`,
-        type: ChannelType.GuildCategory,
-        position: +positionCreateChannels,
-      });
-
-      for (const team of match) {
-        await guild.channels.create({
-          name: team.replace('team_', 'Time '),
-          type: ChannelType.GuildVoice,
-          parent: category,
-        });
-      }
-    }
-  } catch (error) {
-    console.log(error);
-  }
+  channels?.forEach(channel => channel.delete())
+  category?.delete()
 }

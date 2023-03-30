@@ -1,7 +1,7 @@
-import { Client, GatewayIntentBits } from 'discord.js'
+import { Client, GatewayIntentBits, ActionRowBuilder, ButtonBuilder, ButtonStyle } from 'discord.js'
 import { botToken, testChannelId } from './utils/global-constants'
-import { configureMatchesVoiceChannels } from './discord/configure-matches-voices-channels'
-import { deleteCategoriesAndChannelsMatches, deleteChannelsAndCategory } from './discord/delete-channels'
+import { getMatches } from './discord/configure-matches-voices-channels'
+import { deleteCategoriesAndChannelsMatches } from './discord/delete-channels'
 
 const client = new Client({
   intents: [
@@ -13,31 +13,63 @@ const client = new Client({
   ],
 })
 
-client.on('ready', () => {
-  console.log('Bot is ready!')
+client.guilds.
+
+  client.on('ready', () => {
+    console.log('Bot is ready!')
+  })
+
+client.on('interactionCreate', async (interaction) => {
+  if (!interaction.isButton()) return;
+
+  if (interaction.customId === 'updateMatches') {
+    try {
+      interaction.reply('!updateVoiceChannels')
+      await interaction.deleteReply()
+
+    } catch (error) {
+      console.log(error)
+    }
+  }
 })
 
+
 client.on('messageCreate', async (message) => {
-  if (message.channelId !== testChannelId) return
+  if (message.content === '!addButtonAction') {
+    try {
+      const row: any = new ActionRowBuilder()
+        .addComponents(
+          new ButtonBuilder()
+            .setCustomId('updateMatches')
+            .setLabel('🕹️ Atualizar canais')
+            .setStyle(ButtonStyle.Primary)
+        )
+
+      await message.reply({ content: 'Clique no botão abaixo para atualizar os canais de voz de acordo com as partidas no FACEIT', components: [row] })
+
+    } catch (error) {
+      console.log(error)
+    }
+  }
+
+  if (message.channelId !== testChannelId && !message.author.bot) return
 
   if (message.content === '!ping') {
     message.reply('pong')
   }
 
-  if (message.content === '!updateMatches') {
+  if (message.content === '!updateVoiceChannels') {
     try {
-      await configureMatchesVoiceChannels(message)
-      await deleteChannelsAndCategory(message)
+      getMatches(message)
     } catch (error) {
-      message.reply(error)
+      console.log(error)
     }
   }
 
-  if (message.content === '!deleteCategoriesMatches') {
+  if (message.content === '!deleteVoiceChannels') {
     try {
       await deleteCategoriesAndChannelsMatches(message)
     } catch (error) {
-      message.reply(error)
     }
   }
 })
