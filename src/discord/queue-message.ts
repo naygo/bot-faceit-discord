@@ -1,7 +1,6 @@
 import { getPlayersOnQueue } from '@/faceit/faceit-api';
-import { getMessagesFaceitInfoChannel } from '@/utils/faceit-info-channel';
-import { sleep } from '@/utils/time';
-import { Client } from 'discord.js';
+import { emptySpace } from '@/utils/global-constants';
+import { EmbedBuilder } from 'discord.js';
 
 const reactions = [
   {
@@ -22,25 +21,17 @@ const reactions = [
   },
 ];
 
-export async function messageToShowPlayersOnQueue(client: Client) {
-  const { messages, channel } = await getMessagesFaceitInfoChannel(client);
-  const message = messages.find((message) =>
-    message.content.includes('NA FILA')
-  );
-
+export async function messageToShowPlayersOnQueue(): Promise<EmbedBuilder> {
   const playersOnQueue = await getPlayersOnQueue();
 
   const emoji = reactions.find((reaction) =>
     reaction.valores.includes(playersOnQueue)
   )?.emoji;
-  const messageText = `**[${playersOnQueue}] NA FILA** ${emoji}`;
+  const messageText = `${emoji + emptySpace}**[${playersOnQueue}] NA FILA**`;
 
-  if (message) {
-    await message.edit(messageText);
-  } else {
-    await channel.send(messageText);
-  }
+  const embed = new EmbedBuilder()
+    .setColor('#e09600')
+    .setDescription(messageText);
 
-  await sleep(5);
-  messageToShowPlayersOnQueue(client);
+  return embed;
 }

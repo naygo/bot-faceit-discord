@@ -4,6 +4,8 @@ import { getMatches } from './discord/configure-matches-voices-channels';
 import { messageToShowPlayersOnQueue } from './discord/queue-message';
 import { messageToShowCurrentMatches } from './discord/current-matches-message';
 import { createButtonUpdateMatches } from './discord/create-button-update-matches';
+import { getMessagesFaceitInfoChannel } from './utils/faceit-info-channel';
+import { sleep } from './utils/time';
 
 const client = new Client({
   intents: [
@@ -17,9 +19,35 @@ const client = new Client({
 
 client.on('ready', async () => {
   console.log('========== BOT ONLINE ==========');
-  messageToShowPlayersOnQueue(client);
-  messageToShowCurrentMatches(client);
+  updateFaceitInfoChannelEmbeds(client);
 });
+
+async function updateFaceitInfoChannelEmbeds(client: Client) {
+  const { messages, channel } = await getMessagesFaceitInfoChannel(client);
+  const messageExists = messages.find((message) =>
+    message.embeds.find((embed) =>
+      embed.description?.includes('PARTIDAS ATIVAS')
+    )
+  );
+
+  const embeds = [];
+  embeds.push(await messageToShowPlayersOnQueue());
+  embeds.push(...(await messageToShowCurrentMatches()));
+
+  const message = {
+    content: 'Informações atualizadas da fila e partidas no FACEIT',
+    embeds,
+  };
+
+  if (messageExists) {
+    await messageExists.edit(message);
+  } else {
+    await channel.send(message);
+  }
+
+  await sleep(5);
+  updateFaceitInfoChannelEmbeds(client);
+}
 
 client.on('messageCreate', async (message) => {
   if (message.content === '!addButtonAction')
