@@ -1,7 +1,9 @@
-import { Client, GatewayIntentBits, ActionRowBuilder, ButtonBuilder, ButtonStyle } from 'discord.js'
-import { botToken, testChannelId } from './utils/global-constants'
-import { getMatches } from './discord/configure-matches-voices-channels'
-import { deleteCategoriesAndChannelsMatches } from './discord/delete-channels'
+import { Client, GatewayIntentBits } from 'discord.js';
+import { testChannelId } from './utils/global-constants';
+import { getMatches } from './discord/configure-matches-voices-channels';
+import { messageToShowPlayersOnQueue } from './discord/queue-message';
+import { messageToShowCurrentMatches } from './discord/current-matches-message';
+import { createButtonUpdateMatches } from './discord/create-button-update-matches';
 
 const client = new Client({
   intents: [
@@ -9,71 +11,32 @@ const client = new Client({
     GatewayIntentBits.GuildMessages,
     GatewayIntentBits.GuildMessageReactions,
     GatewayIntentBits.GuildMessageTyping,
-    GatewayIntentBits.MessageContent
+    GatewayIntentBits.MessageContent,
   ],
-})
+});
 
-client.guilds.
-
-  client.on('ready', () => {
-    console.log('Bot is ready!')
-  })
-
-client.on('interactionCreate', async (interaction) => {
-  if (!interaction.isButton()) return;
-
-  if (interaction.customId === 'updateMatches') {
-    try {
-      interaction.reply('!updateVoiceChannels')
-      await interaction.deleteReply()
-
-    } catch (error) {
-      console.log(error)
-    }
-  }
-})
-
+client.on('ready', async () => {
+  console.log('========== BOT ONLINE ==========');
+  messageToShowPlayersOnQueue(client);
+  messageToShowCurrentMatches(client);
+});
 
 client.on('messageCreate', async (message) => {
-  if (message.content === '!addButtonAction') {
-    try {
-      const row: any = new ActionRowBuilder()
-        .addComponents(
-          new ButtonBuilder()
-            .setCustomId('updateMatches')
-            .setLabel('🕹️ Atualizar canais')
-            .setStyle(ButtonStyle.Primary)
-        )
+  if (message.content === '!addButtonAction')
+    createButtonUpdateMatches(message);
 
-      await message.reply({ content: 'Clique no botão abaixo para atualizar os canais de voz de acordo com as partidas no FACEIT', components: [row] })
+  if (message.channelId !== testChannelId && !message.author.bot) return;
 
-    } catch (error) {
-      console.log(error)
-    }
-  }
+  if (message.content === '!ping') message.reply('pong');
 
-  if (message.channelId !== testChannelId && !message.author.bot) return
+  if (message.content === '!updateVoiceChannels') getMatches(message);
 
-  if (message.content === '!ping') {
-    message.reply('pong')
-  }
+  // if (message.content === '!deleteVoiceChannels') {
+  //   try {
+  //     await deleteCategoriesAndChannelsMatches(message)
+  //   } catch (error) {
+  //   }
+  // }
+});
 
-  if (message.content === '!updateVoiceChannels') {
-    try {
-      getMatches(message)
-    } catch (error) {
-      console.log(error)
-    }
-  }
-
-  if (message.content === '!deleteVoiceChannels') {
-    try {
-      await deleteCategoriesAndChannelsMatches(message)
-    } catch (error) {
-    }
-  }
-})
-
-
-
-client.login(botToken)
+client.login(process.env.BOT_TOKEN);

@@ -1,15 +1,15 @@
-import { Message } from "discord.js";
+import { Message } from 'discord.js';
 
 export async function deleteCategoriesAndChannelsMatches(message: Message) {
   try {
     const guild = message.guild;
 
     if (!guild) {
-      throw new Error("Guild not found");
+      throw new Error('Guild not found');
     }
 
-    const categories = guild.channels.cache.filter(
-      (channel) => channel.name.includes("Partida")
+    const categories = guild.channels.cache.filter((channel) =>
+      channel.name.includes('Partida')
     );
 
     categories.forEach((category) => {
@@ -21,7 +21,6 @@ export async function deleteCategoriesAndChannelsMatches(message: Message) {
 
       category.delete();
     });
-
   } catch (error) {
     console.log(error);
   }

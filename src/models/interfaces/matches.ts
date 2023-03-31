@@ -3,5 +3,5 @@ export interface Matches {
   teams: {
     faction1: string;
     faction2: string;
-  }
+  };
 }
