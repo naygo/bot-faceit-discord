@@ -39,4 +39,13 @@ client.on('messageCreate', async (message) => {
   // }
 });
 
+client.on('interactionCreate', async (interaction) => {
+  if (!interaction.isButton()) return;
+
+  if (interaction.customId === 'updateMatches') {
+    interaction.reply('!updateVoiceChannels');
+    await interaction.deleteReply();
+  }
+});
+
 client.login(process.env.BOT_TOKEN);
