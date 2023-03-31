@@ -16,6 +16,9 @@ interface CurrentMatchesInfo {
 
 export async function messageToShowCurrentMatches(): Promise<EmbedBuilder[]> {
   const matches = await getHubMatches();
+
+  if(!matches.items.length) return [];
+
   const currentMatches = matches.items.filter(
     (match) => match.status !== 'CHECK_IN'
   );
