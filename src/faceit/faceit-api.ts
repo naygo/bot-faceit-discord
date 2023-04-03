@@ -1,9 +1,12 @@
-import { FaceitHubMatches } from '@/models/interfaces/hub-matches';
-import { FaceitMatchInfo } from '@/models/interfaces/match';
-import { FaceitQueue } from '@/models/interfaces/queue';
-import { hubId } from '@/utils/global-constants';
 import axios from 'axios';
 import dotenv from 'dotenv';
+
+import { FaceitHubMembers } from '@/models/interfaces/faceit-hub-members';
+import { FaceitPlayerHistory } from '@/models/interfaces/faceit-player-history';
+import { FaceitHubMatches } from '@/models/interfaces/faceit-hub-matches';
+import { FaceitMatchInfo } from '@/models/interfaces/faceit-match';
+import { hubId } from '@/utils/global-constants';
+import { FaceitQueue } from '@/models/interfaces/faceit-queue';
 
 dotenv.config();
 
@@ -47,4 +50,26 @@ export async function getQueueInfo(): Promise<FaceitQueue> {
 export async function getPlayersOnQueue(): Promise<number> {
   const queueInfo = await getQueueInfo();
   return queueInfo.payload[0].noOfPlayers;
+}
+
+export async function getPlayerHistoryOnHub(
+  userId: string,
+  params?: { limit?: number; offset?: number }
+): Promise<FaceitPlayerHistory> {
+  const response = await faceitOpenClient.get(`players/${userId}/history`, {
+    params: {
+      game: 'valorant',
+      hub: hubId,
+      limit: params?.limit || 10,
+      offset: params?.offset || 0,
+    },
+  });
+
+  return response.data;
+}
+
+export async function getHubPlayers(): Promise<FaceitHubMembers> {
+  const response = await faceitOpenClient.get(`/hubs/${hubId}/members`);
+
+  return response.data;
 }

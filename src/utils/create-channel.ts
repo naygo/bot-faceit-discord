@@ -1,6 +1,7 @@
 import {
   CategoryChannel,
   ChannelType,
+  Interaction,
   Message,
   OverwriteResolvable,
   PermissionsBitField,
@@ -10,11 +11,11 @@ export const createDiscordChannel = async (
   name: string,
   type: any,
   position: number,
-  message: Message,
+  interation: Interaction,
   parent?: CategoryChannel,
   permissions?: OverwriteResolvable[]
 ) => {
-  const guild = message.guild;
+  const guild = interation.guild;
   const channel = await guild?.channels.create({
     name,
     type,

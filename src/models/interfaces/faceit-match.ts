@@ -55,19 +55,9 @@ export interface Entity {
 export interface EntityCustom {
   effectiveRanking: number;
   matcherMatchId: string;
-  parties: Parties;
-  partyQueueDurations: PartyQueueDurations;
+  parties: string[];
+  partyQueueDurations: string[];
   queueId: string;
-}
-
-export interface Parties {
-  '8271d2e3-4350-4fd4-8405-512489e31a9b': string[];
-  'b6f453a4-052a-424f-9317-af65cc3f3ec1': string[];
-}
-
-export interface PartyQueueDurations {
-  '8271d2e3-4350-4fd4-8405-512489e31a9b': number;
-  'b6f453a4-052a-424f-9317-af65cc3f3ec1': number;
 }
 
 export interface CheckIn {

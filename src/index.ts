@@ -1,11 +1,12 @@
 import { Client, GatewayIntentBits } from 'discord.js';
-import { testChannelId } from './utils/global-constants';
-import { getMatches } from './discord/configure-matches-voices-channels';
-import { messageToShowPlayersOnQueue } from './discord/queue-message';
+import { getMatches } from './discord/matches-voices-channels';
+import { messageToShowPlayersOnQueue } from './discord/players-on-queue-embed';
 import { messageToShowCurrentMatches } from './discord/current-matches-message';
-import { createButtonUpdateMatches } from './discord/create-button-update-matches';
 import { getMessagesFaceitInfoChannel } from './utils/faceit-info-channel';
 import { sleep } from './utils/time';
+import { handlePlayerHistory } from './discord/player-history-matches';
+import { CommandsEnum } from './models/enums/commands.enum';
+import { updateFaceitInfoChannelEmbeds } from './discord/button-update-matches';
 
 const client = new Client({
   intents: [
@@ -17,63 +18,31 @@ const client = new Client({
   ],
 });
 
-client.on('ready', async () => {
-  console.log('========== BOT ONLINE ==========');
-  updateFaceitInfoChannelEmbeds(client);
+client.on('ready', async (c) => {
+  console.log(`✅ Logged in as ${c.user?.tag}!`);
+
+  await updateFaceitInfoChannelEmbeds(client);
 });
 
-async function updateFaceitInfoChannelEmbeds(client: Client) {
-  const { messages, channel } = await getMessagesFaceitInfoChannel(client);
-  const messageExists = messages.find((message) =>
-    message.embeds.find((embed) =>
-      embed.description?.includes('PARTIDAS ATIVAS')
-    )
-  );
+client.on('interactionCreate', async (interaction) => {
+  if (!interaction.isChatInputCommand()) return;
 
-  const embeds = [];
-  embeds.push(await messageToShowPlayersOnQueue());
-  embeds.push(...(await messageToShowCurrentMatches()));
-
-  const message = {
-    content: 'Informações atualizadas da fila e partidas no FACEIT',
-    embeds,
+  const interactions: Record<string, () => void> = {
+    [CommandsEnum.PING]: () => interaction.reply('Pong!'),
+    [CommandsEnum.UPDATE_MATCHES]: () => getMatches(interaction),
+    [CommandsEnum.MATCHES_HISTORY]: async () => handlePlayerHistory(interaction),
   };
 
-  if (messageExists) {
-    await messageExists.edit(message);
-  } else {
-    await channel.send(message);
-  }
+  interactions[interaction.commandName]();
 
-  await sleep(5);
-  updateFaceitInfoChannelEmbeds(client);
-}
-
-client.on('messageCreate', async (message) => {
-  if (message.content === '!addButtonAction')
-    createButtonUpdateMatches(message);
-
-  if (message.channelId !== testChannelId && !message.author.bot) return;
-
-  if (message.content === '!ping') message.reply('pong');
-
-  if (message.content === '!updateVoiceChannels') getMatches(message);
-
-  // if (message.content === '!deleteVoiceChannels') {
-  //   try {
-  //     await deleteCategoriesAndChannelsMatches(message)
-  //   } catch (error) {
+  // if (interaction.isButton()) {
+  //   if (interaction.customId === 'updateMatches') {
+  //     interaction.reply('!updateVoiceChannels');
+  //     await interaction.deleteReply();
   //   }
   // }
 });
 
-client.on('interactionCreate', async (interaction) => {
-  if (!interaction.isButton()) return;
-
-  if (interaction.customId === 'updateMatches') {
-    interaction.reply('!updateVoiceChannels');
-    await interaction.deleteReply();
-  }
-});
-
 client.login(process.env.BOT_TOKEN);
+
+

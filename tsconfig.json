@@ -8,6 +8,7 @@
     "allowJs": true,
     "strictNullChecks": true,
     "baseUrl": "./src",
+    "rootDir": "./src",
     "paths": {
       "@/*": ["*"]
     }

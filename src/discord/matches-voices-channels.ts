@@ -1,10 +1,10 @@
 import { getHubMatches, getMatchInfo } from '@/faceit/faceit-api';
-import { Faction, HubMatch } from '@/models/interfaces/hub-matches';
+import { HubMatch } from '@/models/interfaces/faceit-hub-matches';
 import { createDiscordChannel } from '@/utils/create-channel';
 import { hubId, positionCreateChannels } from '@/utils/global-constants';
-import { ChannelType, Message } from 'discord.js';
+import { ChannelType, ChatInputCommandInteraction } from 'discord.js';
 import { sleep } from '@/utils/time';
-import { MatchInfo } from '@/models/interfaces/match';
+import { MatchInfo } from '@/models/interfaces/faceit-match';
 
 interface MatchHandler {
   channelsId: string[];
@@ -13,24 +13,24 @@ interface MatchHandler {
 
 interface Context {
   match: HubMatch;
-  message: Message;
+  interaction: ChatInputCommandInteraction;
 }
 
-export async function getMatches(message: Message) {
+export async function getMatches(interaction: ChatInputCommandInteraction) {
   if (!hubId) throw new Error('HubId not found! (hubId)');
   const matches = await getHubMatches();
 
   for (const match of matches.items) {
-    handleNewMatch({ match, message });
+    handleNewMatch({ match, interaction });
   }
 }
 
 async function handleNewMatch(ctx: Context) {
-  const handler = await createChannelsAndCategory(ctx.match, ctx.message); // criar os canais no discord
+  const handler = await createChannelsAndCategory(ctx.match, ctx.interaction); // criar os canais no discord
   const { payload } = await getMatchInfo(ctx.match.match_id);
 
   await forMatchToEnd(payload); // esperar enquanto a partida não está cancelada/finalizada
-  deleteChannelsAndCategory(handler, ctx.message); // se "FINISHED" -> deletar os canais
+  deleteChannelsAndCategory(handler, ctx.interaction); // se "FINISHED" -> deletar os canais
 }
 
 async function forMatchToEnd(match: MatchInfo): Promise<void> {
@@ -46,14 +46,13 @@ async function forMatchToEnd(match: MatchInfo): Promise<void> {
 
 async function createChannelsAndCategory(
   match: HubMatch,
-  message: Message
+  interaction: ChatInputCommandInteraction
 ): Promise<MatchHandler> {
   const channelsPosition = +(positionCreateChannels || '0');
   const channelsId: string[] = [];
-  const teams: Faction[] = Object.values(match.teams);
   const matchName = `Partida ${match.teams.faction1.name} x ${match.teams.faction2.name}`;
 
-  const categoryExists = message.guild?.channels.cache.find(
+  const categoryExists = interaction.guild?.channels.cache.find(
     (channel) => channel.name === matchName
   );
   if (categoryExists) {
@@ -69,15 +68,15 @@ async function createChannelsAndCategory(
     matchName,
     ChannelType.GuildCategory,
     channelsPosition,
-    message
+    interaction
   );
 
-  for (const team of teams) {
+  for (const team of Object.values(match.teams)) {
     const voiceChannel = await createDiscordChannel(
       team.name.replace('team_', 'Time '),
       ChannelType.GuildVoice,
       channelsPosition,
-      message,
+      interaction,
       categoryChannel
     );
 
@@ -92,11 +91,11 @@ async function createChannelsAndCategory(
 
 function deleteChannelsAndCategory(
   matchHandler: MatchHandler,
-  message: Message
+  interaction: ChatInputCommandInteraction
 ) {
   console.log('Deletando canais e categoria da partida: ', matchHandler);
 
-  const discordChannels = message.guild?.channels.cache;
+  const discordChannels = interaction.guild?.channels.cache;
   const channels = discordChannels?.filter((channel) =>
     matchHandler.channelsId.includes(channel.id)
   );

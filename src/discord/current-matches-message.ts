@@ -1,6 +1,7 @@
 import { getHubMatches } from '@/faceit/faceit-api';
-import { HubMatch, Map, Roster, Teams } from '@/models/interfaces/hub-matches';
-import { emptySpace } from '@/utils/global-constants';
+import { HubMatch, Map, Roster, Teams } from '@/models/interfaces/faceit-hub-matches';
+import { formatDateFaceit } from '@/utils/format-date-faceit';
+import { colorYellow, emptySpace } from '@/utils/global-constants';
 import { EmbedBuilder } from 'discord.js';
 
 interface CurrentMatchesInfo {
@@ -17,10 +18,8 @@ interface CurrentMatchesInfo {
 export async function messageToShowCurrentMatches(): Promise<EmbedBuilder[]> {
   const matches = await getHubMatches();
 
-  if(!matches.items.length) return [];
-
   const currentMatches = matches.items.filter(
-    (match) => match.status !== 'CHECK_IN'
+    (match) => match.status === 'MANUAL_RESULT'
   );
   const checkInMatches = matches.items.filter(
     (match) => match.status === 'CHECK_IN'
@@ -31,7 +30,9 @@ export async function messageToShowCurrentMatches(): Promise<EmbedBuilder[]> {
   embeds.push(
     makeCurrentMatchesEmbed(currentMatches.length, checkInMatches.length)
   );
-  embeds.push(...createCurrentMatchesEmbed(currentMatchesInfo));
+
+  matches.items.length > 0 &&
+    embeds.push(...createCurrentMatchesEmbed(currentMatchesInfo));
 
   return embeds;
 }
@@ -40,7 +41,7 @@ function makeCurrentMatchesEmbed(
   currentMatches: number,
   checkInMatches: number
 ) {
-  const embed = new EmbedBuilder().setColor('#e09600').setDescription(
+  const embed = new EmbedBuilder().setColor(colorYellow).setDescription(
     `
         ${'🟢' + emptySpace}**[${currentMatches}] PARTIDAS ATIVAS**
         ${'🟠' + emptySpace}**[${checkInMatches}] PARTIDAS EM CHECK-IN**\n
@@ -56,9 +57,9 @@ function mapCurrentMatchesInfo(matches: HubMatch[]): CurrentMatchesInfo[] {
   for (const match of matches) {
     currentMatches.push({
       matchName: formatTeamsName(match.teams),
-      startedAt: convertEpoch(match.started_at),
+      startedAt: formatDateFaceit(match.started_at),
       faceitUrl: match.faceit_url,
-      mapImage: getImageVotedMap(match.voting.map),
+      mapImage: getImageVotedMap(match.voting?.map),
       playersName: {
         faction1: mapPlayerNickname(match.teams.faction1.roster),
         faction2: mapPlayerNickname(match.teams.faction2.roster),
@@ -71,21 +72,6 @@ function mapCurrentMatchesInfo(matches: HubMatch[]): CurrentMatchesInfo[] {
 
 function mapPlayerNickname(players: Roster[]) {
   return players.map((player) => player.game_player_name);
-}
-
-function formatDate(date: Date): string {
-  const day = date.getDate().toString().padStart(2, '0');
-  const month = (date.getMonth() + 1).toString().padStart(2, '0');
-  const year = date.getFullYear().toString();
-  const hours = date.getHours().toString().padStart(2, '0');
-  const minutes = date.getMinutes().toString().padStart(2, '0');
-  return `${day}/${month}/${year} ${hours}:${minutes}`;
-}
-
-function convertEpoch(epoch: number): string {
-  const date = new Date(epoch * 1000);
-  const formattedDate = formatDate(date);
-  return formattedDate;
 }
 
 function createCurrentMatchesEmbed(
@@ -122,13 +108,17 @@ function createCurrentMatchesEmbed(
 }
 
 function getImageVotedMap(map: Map): string {
+  if (!map) return ' ';
+
   const votedMap = map.pick[0];
   const infoVotedMap = map.entities.find((map) => map.guid === votedMap);
 
-  return infoVotedMap?.image_lg || '';
+  return infoVotedMap?.image_lg || ' ';
 }
 
 function formatTeamsName(teams: Teams): string {
+  if (!teams.faction1 || !teams.faction2) return ' ';
+
   return `**${formatTeam(teams.faction1.name)}** vs **${formatTeam(
     teams.faction2.name
   )}**`;
