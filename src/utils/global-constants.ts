@@ -8,6 +8,7 @@ export const guildId = process.env.GUILD_ID;
 export const faceitChannelInfoId = process.env.QUEUE_CHANNEL_ID;
 export const discordToken = process.env.BOT_TOKEN;
 export const clientId = process.env.CLIENT_ID;
+export const historyChannelId = process.env.HISTORY_CHANNEL_ID;
 export const emptySpace = '⠀';
 
 export const colorYellow = '#e09600';

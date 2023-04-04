@@ -1,10 +1,12 @@
-import { Client, GatewayIntentBits } from 'discord.js';
+import {
+  ButtonInteraction,
+  ChatInputCommandInteraction,
+  Client,
+  Events,
+  GatewayIntentBits,
+} from 'discord.js';
 import { getMatches } from './discord/matches-voices-channels';
-import { messageToShowPlayersOnQueue } from './discord/players-on-queue-embed';
-import { messageToShowCurrentMatches } from './discord/current-matches-message';
-import { getMessagesFaceitInfoChannel } from './utils/faceit-info-channel';
-import { sleep } from './utils/time';
-import { handlePlayerHistory } from './discord/player-history-matches';
+import { handlerPlayerHistory, historyPagination } from './discord/player-history-matches';
 import { CommandsEnum } from './models/enums/commands.enum';
 import { updateFaceitInfoChannelEmbeds } from './discord/button-update-matches';
 
@@ -24,25 +26,27 @@ client.on('ready', async (c) => {
   await updateFaceitInfoChannelEmbeds(client);
 });
 
-client.on('interactionCreate', async (interaction) => {
-  if (!interaction.isChatInputCommand()) return;
+client.on(Events.InteractionCreate, (interaction) => {
+  if (interaction.isButton()) interactionButton(interaction);
+  if (interaction.isChatInputCommand()) interactionChatInputCommand(interaction);
+});
 
+function interactionChatInputCommand(interaction: ChatInputCommandInteraction) {
   const interactions: Record<string, () => void> = {
     [CommandsEnum.PING]: () => interaction.reply('Pong!'),
-    [CommandsEnum.UPDATE_MATCHES]: () => getMatches(interaction),
-    [CommandsEnum.MATCHES_HISTORY]: async () => handlePlayerHistory(interaction),
+    [CommandsEnum.UPDATE_MATCHES]: async () => await getMatches(interaction),
+    [CommandsEnum.MATCHES_HISTORY]: async () => await handlerPlayerHistory(interaction, client),
   };
 
   interactions[interaction.commandName]();
+}
 
-  // if (interaction.isButton()) {
-  //   if (interaction.customId === 'updateMatches') {
-  //     interaction.reply('!updateVoiceChannels');
-  //     await interaction.deleteReply();
-  //   }
+async function interactionButton(interaction: ButtonInteraction) {
+  // if (interaction.customId.includes('player-history')) {
+  //   const page = historyPagination(interaction);
+  //   await handlerPlayerHistory(interaction, page)
+  //   return;
   // }
-});
+}
 
 client.login(process.env.BOT_TOKEN);
-
-

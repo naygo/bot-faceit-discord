@@ -56,6 +56,7 @@ export async function getPlayerHistoryOnHub(
   userId: string,
   params?: { limit?: number; offset?: number }
 ): Promise<FaceitPlayerHistory> {
+  console.log('getPlayerHistoryOnHub', params)
   const response = await faceitOpenClient.get(`players/${userId}/history`, {
     params: {
       game: 'valorant',
