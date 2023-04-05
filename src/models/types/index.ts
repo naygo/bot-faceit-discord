@@ -9,3 +9,4 @@ export * from './faceit-hub-matches';
 export * from './faceit-hub-members';
 export * from './faceit-player-history';
 export * from './faceit-queue';
+export * from './faceit-hub-details';

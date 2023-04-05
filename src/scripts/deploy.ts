@@ -20,9 +20,9 @@ async function main() {
 main()
   .then((user) => {
     const tag = `${user.username}#${user.discriminator}`;
-    const response = process.env.NODE_ENV
-      ? `Succesfully released commands in production as ${tag}!`
-      : `Succesfully registered commands for development in ${keys.testGuildId} as ${tag}!`;
+    const response = process.env.NODE_ENV === 'production'
+      ? `Successfully released commands in production as ${tag}!`
+      : `Successfully registered commands for development in ${keys.testGuildId} as ${tag}!`
 
     console.log(response);
   })

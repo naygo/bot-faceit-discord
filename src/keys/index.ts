@@ -9,14 +9,12 @@ const keys: Keys = {
   faceitApiKey: process.env.FACEIT_API_KEY ?? 'NULL',
   faceitHubId: process.env.FACEIT_HUB_ID ?? 'NULL',
 
-  discordGuildId: process.env.GUILD_ID ?? 'NULL',
   testGuildId: process.env.TEST_GUILD_ID ?? 'NULL',
-  clientID: process.env.CLIENT_ID ?? 'NULL',
+  // clientID: process.env.CLIENT_ID ?? 'NULL',
 
   faceitInfoChannelId: process.env.FACEIT_INFO_CHANNEL_ID ?? 'NULL',
   testsChannelId: process.env.TESTS_CHANNEL_ID ?? 'NULL',
-  historyChannelId: process.env.HISTORY_CHANNEL_ID ?? 'NULL',
-  queueChannelId: process.env.QUEUE_CHANNEL_ID ?? 'NULL',
+  // historyChannelId: process.env.HISTORY_CHANNEL_ID ?? 'NULL',
 
   positionVoiceChannels: process.env.POSITION_VOICE_CHANNELS ?? 'NULL',
 };

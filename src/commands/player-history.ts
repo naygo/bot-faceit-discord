@@ -12,8 +12,8 @@ import {
   generatePaginationButtons,
   paginationAction,
 } from '@/utils';
-import { getPlayerHistoryOnHub, getPlayerOnHub } from '@/services/faceit-api';
-import { PlayerHistory } from '@/models/types';
+import { getHubPlayers, getPlayerHistoryOnHub } from '@/services/faceit-api';
+import { Members, PlayerHistory } from '@/models/types';
 import colors from '@/keys/colors';
 
 const meta = new SlashCommandBuilder()
@@ -29,9 +29,16 @@ const meta = new SlashCommandBuilder()
 
 export default command(meta, async ({ interaction }) => {
   const nickname = interaction.options.getString('nickname');
-  if (!nickname) throw new Error('Nickname não informado');
+  if (!nickname) {
+    interaction.reply('❌ Nickname não informado');
+    throw new Error('Nickname não informado');
+  }
+
+  // await interaction.deferReply({ ephemeral: true });
+  await interaction.deferReply({ ephemeral: true });
 
   const player = await getPlayerOnHub(nickname);
+  console.log(player);
   const playerHistory = (await getPlayerHistoryOnHub(player.user_id)).items.filter(
     (match) => match.status === 'finished'
   );
@@ -44,6 +51,7 @@ export default command(meta, async ({ interaction }) => {
     playerHistory,
     interaction
   );
+
   const buttonsConfig = configPaginationButtons(
     true,
     playerHistory.length < 10,
@@ -54,8 +62,17 @@ export default command(meta, async ({ interaction }) => {
   );
   const components = generatePaginationButtons(buttonsConfig);
 
-  await interaction.reply({ embeds: [embed], components: [components], ephemeral: true });
+  await interaction.editReply({ embeds: [embed], components: [components] });
 });
+
+export async function getPlayerOnHub(nickname: string): Promise<Members> {
+  const players = await getHubPlayers();
+  const player = players.find((player) => player.nickname === nickname);
+
+  if (!player) throw new Error('Player not found on hub!');
+
+  return player;
+}
 
 export async function generatePlayerHistoryEmbed(
   nickname: string,

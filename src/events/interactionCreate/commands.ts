@@ -13,7 +13,7 @@ export default event('interactionCreate', async ({ log, client }, interaction) =
   try {
     const commandName = interaction.commandName;
     const command = allCommands.get(commandName);
-
+    
     if (!command) throw new Error(`Command ${commandName} not found`);
 
     await command.exec({
