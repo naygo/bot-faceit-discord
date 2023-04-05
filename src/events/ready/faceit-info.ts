@@ -98,7 +98,7 @@ function mapCurrentMatchesInfo(matches: HubMatch[]): CurrentMatchesInfo[] {
     currentMatches.push({
       matchName: formatTeamsName(match.teams),
       startedAt: formatDateFaceit(match.started_at),
-      faceitUrl: match.faceit_url,
+      faceitUrl: match.faceit_url.replace('{lang}', 'pt'),
       mapImage: getImageVotedMap(match.voting?.map),
       playersName: {
         faction1: mapPlayerNickname(match.teams.faction1.roster),
