@@ -3,8 +3,8 @@ import colors from '@/keys/colors';
 import { specialCaracteres } from '@/keys/special-caracteres';
 import { HubMatch, HubMatchMap, HubMatchRoster, HubMatchTeams } from '@/models/types';
 import { getHubMatches, getPlayersOnQueue } from '@/services/faceit-api';
-import { event, formatDateFaceit, queueReactions } from '@/utils';
-import { ChannelType, EmbedBuilder } from 'discord.js';
+import { event, formatDateFaceit, queueReactions, sleep } from '@/utils';
+import { ChannelType, Client, EmbedBuilder } from 'discord.js';
 
 interface CurrentMatchesInfo {
   matchName: string;
@@ -19,33 +19,40 @@ interface CurrentMatchesInfo {
 
 export default event('ready', async ({ log }, client) => {
   try {
-    const channelFaceitInfo = client.channels.cache.get(keys.faceitInfoChannelId);
-
-    if (!channelFaceitInfo || channelFaceitInfo.type !== ChannelType.GuildText)
-      throw new Error('Channel not found');
-
-    const embeds = [await generateEmbedPlayersOnQueue(), ...(await messageToShowCurrentMatches())];
-
-    const channelMessages = await channelFaceitInfo.messages.fetch();
-    const faceitInfoMessageExists = channelMessages.find((message) =>
-      message.embeds.find((embed) => embed.description?.includes('NA FILA'))
-    );
-
-    const message = {
-      content: 'Informações atualizadas da fila e partidas no FACEIT',
-      embeds,
-    };
-
-    if (faceitInfoMessageExists) {
-      await faceitInfoMessageExists.edit(message);
-    } else {
-      await channelFaceitInfo.send(message);
-    }
+    await updateEmbedInfo(client);
   } catch (error) {
     log('[Faceit Info Error]', error);
     throw error;
   }
 });
+
+async function updateEmbedInfo(client: Client) {
+  const channelFaceitInfo = client.channels.cache.get(keys.faceitInfoChannelId);
+
+  if (!channelFaceitInfo || channelFaceitInfo.type !== ChannelType.GuildText)
+    throw new Error('Channel not found');
+
+  const embeds = [await generateEmbedPlayersOnQueue(), ...(await messageToShowCurrentMatches())];
+
+  const channelMessages = await channelFaceitInfo.messages.fetch();
+  const faceitInfoMessageExists = channelMessages.find((message) =>
+    message.embeds.find((embed) => embed.description?.includes('NA FILA'))
+  );
+
+  const message = {
+    content: 'Informações atualizadas da fila e partidas no FACEIT',
+    embeds,
+  };
+
+  if (faceitInfoMessageExists) {
+    await faceitInfoMessageExists.edit(message);
+  } else {
+    await channelFaceitInfo.send(message);
+  }
+
+  await sleep(5)
+  await updateEmbedInfo(client);
+}
 
 async function generateEmbedPlayersOnQueue(): Promise<EmbedBuilder> {
   const playersOnQueue = await getPlayersOnQueue();
