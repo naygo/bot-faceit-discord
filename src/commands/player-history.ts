@@ -100,9 +100,7 @@ export async function generatePlayerHistoryEmbed(
       {
         name: `${winner ? '🟢' : '🔴'}  ${matchName}`,
         value: `**Data:** ${formatDateFaceit(match.started_at)}
-      **Placar:** ${match.results.score.faction1} x ${
-          match.results.score.faction2
-        } • [Faceit URL](${match.faceit_url})`,
+      **Placar:** ${match.results.score.faction1} x ${match.results.score.faction2}`,
       },
     ]);
   }
