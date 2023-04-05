@@ -1,12 +1,15 @@
+import keys from '@/keys';
+import {
+  FaceitHubMatches,
+  FaceitHubMembers,
+  FaceitMatchInfo,
+  FaceitPlayerHistory,
+  FaceitQueue,
+  Members,
+} from '@/models/types';
+import { FaceitLeaderboard, Leaderboard } from '@/models/types/faceit-leaderboard';
 import axios from 'axios';
 import dotenv from 'dotenv';
-
-import { FaceitHubMembers } from '@/models/interfaces/faceit-hub-members';
-import { FaceitPlayerHistory } from '@/models/interfaces/faceit-player-history';
-import { FaceitHubMatches } from '@/models/interfaces/faceit-hub-matches';
-import { FaceitMatchInfo } from '@/models/interfaces/faceit-match';
-import { hubId } from '@/utils/global-constants';
-import { FaceitQueue } from '@/models/interfaces/faceit-queue';
 
 dotenv.config();
 
@@ -22,9 +25,7 @@ const faceitApiClient = axios.create({
 });
 
 export async function getHubMatches(): Promise<FaceitHubMatches> {
-  if (hubId === undefined) throw new Error('HubId not found! (hubId)');
-
-  const response = await faceitOpenClient.get(`/hubs/${hubId}/matches`, {
+  const response = await faceitOpenClient.get(`/hubs/${keys.faceitHubId}/matches`, {
     params: {
       limit: 10,
       offset: 0,
@@ -42,7 +43,7 @@ export async function getMatchInfo(matchId: string): Promise<FaceitMatchInfo> {
 }
 
 export async function getQueueInfo(): Promise<FaceitQueue> {
-  const response = await faceitApiClient.get(`/queue/v1/queue/hub/${hubId}`);
+  const response = await faceitApiClient.get(`/queue/v1/queue/hub/${keys.faceitHubId}`);
 
   return response.data;
 }
@@ -56,11 +57,10 @@ export async function getPlayerHistoryOnHub(
   userId: string,
   params?: { limit?: number; offset?: number }
 ): Promise<FaceitPlayerHistory> {
-  console.log('getPlayerHistoryOnHub', params)
   const response = await faceitOpenClient.get(`players/${userId}/history`, {
     params: {
       game: 'valorant',
-      hub: hubId,
+      hub: keys.faceitHubId,
       limit: params?.limit || 10,
       offset: params?.offset || 0,
     },
@@ -70,7 +70,30 @@ export async function getPlayerHistoryOnHub(
 }
 
 export async function getHubPlayers(): Promise<FaceitHubMembers> {
-  const response = await faceitOpenClient.get(`/hubs/${hubId}/members`);
+  const response = await faceitOpenClient.get(`/hubs/${keys.faceitHubId}/members`);
 
   return response.data;
+}
+
+export async function getPlayerOnHub(nickname: string): Promise<Members> {
+  const players = await getHubPlayers();
+  const player = players.items.find((player) => player.nickname === nickname);
+
+  if (!player) throw new Error('Player not found on hub!');
+
+  return player;
+}
+
+export async function getHubLeaderboard(): Promise<FaceitLeaderboard> {
+  const response = await faceitOpenClient.get(`/leaderboards/hubs/${keys.faceitHubId}/general`);
+  return response.data;
+}
+
+export async function getPlayerOnHubLeaderboard(userId: string): Promise<Leaderboard> {
+  const leaderboard = await getHubLeaderboard();
+  const player = leaderboard.items.find((item) => item.player.user_id === userId);
+  console.log(leaderboard.items)
+  if (!player) throw new Error('Player not found on hub!');
+
+  return player;
 }

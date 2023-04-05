@@ -1,42 +1,50 @@
-import { getHubMatches, getMatchInfo } from '@/faceit/faceit-api';
-import { HubMatch } from '@/models/interfaces/faceit-hub-matches';
+import { ButtonInteraction, ChannelType } from 'discord.js';
+import { HubMatch, MatchInfo } from '@/models/types';
+import { getHubMatches, getMatchInfo } from '@/services/faceit-api';
+import { EditReply, Reply, event, sleep } from '@/utils';
+import keys from '@/keys';
 import { createDiscordChannel } from '@/utils/create-channel';
-import { hubId, positionCreateChannels } from '@/utils/global-constants';
-import { ChannelType, ChatInputCommandInteraction } from 'discord.js';
-import { sleep } from '@/utils/time';
-import { MatchInfo } from '@/models/interfaces/faceit-match';
 
 interface MatchHandler {
   channelsId: string[];
   category: string;
 }
 
-interface Context {
-  match: HubMatch;
-  interaction: ChatInputCommandInteraction;
-}
+export default event('interactionCreate', async ({ log, client }, interaction) => {
+  if (!interaction.isButton()) return;
+  if (interaction.customId !== 'match-voice-channels') return;
 
-export async function getMatches(interaction: ChatInputCommandInteraction) {
-  if (!hubId) throw new Error('HubId not found! (hubId)');
-  const matches = await getHubMatches();
+  try {
+    const matches = await getHubMatches();
 
-  for (const match of matches.items) {
-    handleNewMatch({ match, interaction });
+    for (const match of matches.items) {
+      handleNewMatch(match, interaction);
+    }
+
+    await interaction.deferUpdate();
+  } catch (error) {
+    log('[Match Voice Channels Error]', error);
+
+    if (interaction.deferred)
+      return await interaction.editReply(
+        EditReply.error('❌ Ocorreu um erro ao executar o comando')
+      );
+
+    return await interaction.reply(Reply.error('❌ Ocorreu um erro ao executar o comando'));
   }
-}
+});
 
-async function handleNewMatch(ctx: Context) {
-  const handler = await createChannelsAndCategory(ctx.match, ctx.interaction); // criar os canais no discord
-  const { payload } = await getMatchInfo(ctx.match.match_id);
+async function handleNewMatch(match: HubMatch, interaction: ButtonInteraction) {
+  const handler = await createChannelsAndCategory(match, interaction);
+  const { payload } = await getMatchInfo(match.match_id);
 
-  await forMatchToEnd(payload); // esperar enquanto a partida não está cancelada/finalizada
-  deleteChannelsAndCategory(handler, ctx.interaction); // se "FINISHED" -> deletar os canais
+  await forMatchToEnd(payload);
+  deleteChannelsAndCategory(handler, interaction);
 }
 
 async function forMatchToEnd(match: MatchInfo): Promise<void> {
   while (match.status != 'FINISHED') {
     await sleep(30);
-    console.log(`Match ${match.id} is ${match.status}`);
     const { payload } = await getMatchInfo(match.id);
     match = payload;
   }
@@ -46,9 +54,9 @@ async function forMatchToEnd(match: MatchInfo): Promise<void> {
 
 async function createChannelsAndCategory(
   match: HubMatch,
-  interaction: ChatInputCommandInteraction
+  interaction: ButtonInteraction
 ): Promise<MatchHandler> {
-  const channelsPosition = +(positionCreateChannels || '0');
+  const channelsPosition = +keys.positionVoiceChannels;
   const channelsId: string[] = [];
   const matchName = `Partida ${match.teams.faction1.name} x ${match.teams.faction2.name}`;
 
@@ -89,19 +97,14 @@ async function createChannelsAndCategory(
   };
 }
 
-function deleteChannelsAndCategory(
-  matchHandler: MatchHandler,
-  interaction: ChatInputCommandInteraction
-) {
+function deleteChannelsAndCategory(matchHandler: MatchHandler, interaction: ButtonInteraction) {
   console.log('Deletando canais e categoria da partida: ', matchHandler);
 
   const discordChannels = interaction.guild?.channels.cache;
   const channels = discordChannels?.filter((channel) =>
     matchHandler.channelsId.includes(channel.id)
   );
-  const category = discordChannels?.find(
-    (channel) => channel.id === matchHandler.category
-  );
+  const category = discordChannels?.find((channel) => channel.id === matchHandler.category);
 
   channels?.forEach((channel) => channel.delete());
   category?.delete();

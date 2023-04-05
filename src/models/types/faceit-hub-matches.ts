@@ -13,8 +13,8 @@ export interface HubMatch {
   competition_type: string;
   competition_name: string;
   organizer_id: string;
-  teams: Teams;
-  voting: Voting;
+  teams: HubMatchTeams;
+  voting: HubMatchVoting;
   calculate_elo: boolean;
   started_at: number;
   chat_room_id: string;
@@ -23,22 +23,22 @@ export interface HubMatch {
   faceit_url: string;
 }
 
-export interface Teams {
-  faction1: Faction;
-  faction2: Faction;
+export interface HubMatchTeams {
+  faction1: HubMatchFaction;
+  faction2: HubMatchFaction;
 }
 
-export interface Faction {
+export interface HubMatchFaction {
   faction_id: string;
   leader: string;
   avatar: string;
-  roster: Roster[];
+  roster: HubMatchRoster[];
   substituted: boolean;
   name: string;
   type: string;
 }
 
-export interface Roster {
+export interface HubMatchRoster {
   player_id: string;
   nickname: string;
   avatar: string;
@@ -49,28 +49,17 @@ export interface Roster {
   anticheat_required: boolean;
 }
 
-export interface Roster2 {
-  player_id: string;
-  nickname: string;
-  avatar: string;
-  membership: string;
-  game_player_id: string;
-  game_player_name: string;
-  game_skill_level: number;
-  anticheat_required: boolean;
-}
-
-export interface Voting {
+export interface HubMatchVoting {
   voted_entity_types: string[];
-  map: Map;
+  map: HubMatchMap;
 }
 
-export interface Map {
-  entities: Entity[];
+export interface HubMatchMap {
+  entities: HubMatchEntity[];
   pick: string[];
 }
 
-export interface Entity {
+export interface HubMatchEntity {
   game_map_id: string;
   guid: string;
   image_lg: string;

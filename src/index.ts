@@ -1,52 +1,21 @@
-import {
-  ButtonInteraction,
-  ChatInputCommandInteraction,
-  Client,
-  Events,
-  GatewayIntentBits,
-} from 'discord.js';
-import { getMatches } from './discord/matches-voices-channels';
-import { handlerPlayerHistory, historyPagination } from './discord/player-history-matches';
-import { CommandsEnum } from './models/enums/commands.enum';
-import { updateFaceitInfoChannelEmbeds } from './discord/button-update-matches';
+import events from '@/events';
+import keys from '@/keys';
+import { registerEvents } from '@/utils';
+import { Client, GatewayIntentBits } from 'discord.js';
 
-const client = new Client({
+export const client = new Client({
   intents: [
     GatewayIntentBits.Guilds,
+    GatewayIntentBits.GuildMembers,
     GatewayIntentBits.GuildMessages,
     GatewayIntentBits.GuildMessageReactions,
-    GatewayIntentBits.GuildMessageTyping,
     GatewayIntentBits.MessageContent,
   ],
 });
 
-client.on('ready', async (c) => {
-  console.log(`✅ Logged in as ${c.user?.tag}!`);
+registerEvents(client, events);
 
-  await updateFaceitInfoChannelEmbeds(client);
+client.login(keys.botToken).catch((err) => {
+  console.error('❌ Error on login: ', err);
+  process.exit(1);
 });
-
-client.on(Events.InteractionCreate, (interaction) => {
-  if (interaction.isButton()) interactionButton(interaction);
-  if (interaction.isChatInputCommand()) interactionChatInputCommand(interaction);
-});
-
-function interactionChatInputCommand(interaction: ChatInputCommandInteraction) {
-  const interactions: Record<string, () => void> = {
-    [CommandsEnum.PING]: () => interaction.reply('Pong!'),
-    [CommandsEnum.UPDATE_MATCHES]: async () => await getMatches(interaction),
-    [CommandsEnum.MATCHES_HISTORY]: async () => await handlerPlayerHistory(interaction, client),
-  };
-
-  interactions[interaction.commandName]();
-}
-
-async function interactionButton(interaction: ButtonInteraction) {
-  // if (interaction.customId.includes('player-history')) {
-  //   const page = historyPagination(interaction);
-  //   await handlerPlayerHistory(interaction, page)
-  //   return;
-  // }
-}
-
-client.login(process.env.BOT_TOKEN);
