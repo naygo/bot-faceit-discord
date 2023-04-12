@@ -13,11 +13,15 @@ const keys: Keys = {
   // clientID: process.env.CLIENT_ID ?? 'NULL',
 
   faceitInfoChannelId: process.env.FACEIT_INFO_CHANNEL_ID ?? 'NULL',
-  testsChannelId: process.env.TESTS_CHANNEL_ID ?? 'NULL',
-  // historyChannelId: process.env.HISTORY_CHANNEL_ID ?? 'NULL',
+  // testsChannelId: process.env.TESTS_CHANNEL_ID ?? 'NULL',
+  historicChannelId: process.env.HISTORIC_CHANNEL_ID ?? 'NULL',
+  leaderboardChannelId: process.env.LEADERBOARD_CHANNEL_ID ?? 'NULL',
+  memberLeftChannelId: process.env.MEMBER_LEFT_CHANNEL_ID ?? 'NULL',
 
   positionVoiceChannels: process.env.POSITION_VOICE_CHANNELS ?? 'NULL',
 };
+
+console.log({ keys })
 
 if (Object.values(keys).includes('NULL')) throw new Error('Some key is not defined!');
 

@@ -1,13 +1,15 @@
-import { ButtonInteraction, ChannelType } from 'discord.js';
+import { ButtonInteraction, ChannelType, Client } from 'discord.js';
 import { HubMatch, MatchInfo } from '@/models/types';
 import { getHubMatches, getMatchInfo } from '@/services/faceit-api';
 import { EditReply, Reply, event, sleep } from '@/utils';
-import keys from '@/keys';
+import keys from '@/keys/env-keys';
 import { createDiscordChannel } from '@/utils/create-channel';
+import { handleLeaderboard } from '../ready/leaderboard';
+import { sendMatchFinisedEmbed } from '@/modules/match-finshed';
 
 interface MatchHandler {
   channelsId: string[];
-  category: string;
+  categoryId: string;
 }
 
 export default event('interactionCreate', async ({ log, client }, interaction) => {
@@ -18,7 +20,7 @@ export default event('interactionCreate', async ({ log, client }, interaction) =
     const matches = await getHubMatches();
 
     for (const match of matches.items) {
-      handleNewMatch(match, interaction);
+      match.status == 'MANUAL_RESULT' && handleNewMatch(match, interaction, client);
     }
 
     await interaction.deferUpdate();
@@ -34,16 +36,23 @@ export default event('interactionCreate', async ({ log, client }, interaction) =
   }
 });
 
-async function handleNewMatch(match: HubMatch, interaction: ButtonInteraction) {
-  const handler = await createChannelsAndCategory(match, interaction);
+async function handleNewMatch(match: HubMatch, interaction: ButtonInteraction, client: Client) {
+  const channelsAndCategory = await createChannelsAndCategory(match, interaction);
   const { payload } = await getMatchInfo(match.match_id);
 
   await forMatchToEnd(payload);
-  deleteChannelsAndCategory(handler, interaction);
+  
+  const isChannelsDeleted = await deleteChannelsAndCategory(channelsAndCategory, interaction);
+  isChannelsDeleted && (await sendMatchFinisedEmbed(match, client));
+  
+  await handleLeaderboard(client);
 }
 
 async function forMatchToEnd(match: MatchInfo): Promise<void> {
   while (match.status != 'FINISHED') {
+    console.log(
+      `[Match Voice Channels] Aguardando partida terminar... ${match.teams.faction1.name} x ${match.teams.faction2.name}`
+    );
     await sleep(30);
     const { payload } = await getMatchInfo(match.id);
     match = payload;
@@ -68,7 +77,7 @@ async function createChannelsAndCategory(
       channelsId: categoryExists.guild.channels.cache
         .filter((channel) => channel.parentId === categoryExists.id)
         .map((channel) => channel.id),
-      category: categoryExists.id,
+      categoryId: categoryExists.id,
     };
   }
 
@@ -93,19 +102,34 @@ async function createChannelsAndCategory(
 
   return {
     channelsId,
-    category: categoryChannel.id,
+    categoryId: categoryChannel.id,
   };
 }
 
-function deleteChannelsAndCategory(matchHandler: MatchHandler, interaction: ButtonInteraction) {
-  console.log('Deletando canais e categoria da partida: ', matchHandler);
-
+async function deleteChannelsAndCategory(
+  channelsAndCategory: MatchHandler,
+  interaction: ButtonInteraction
+): Promise<boolean> {
+  console.log('Deletando canais e categoria da partida: ', channelsAndCategory);
   const discordChannels = interaction.guild?.channels.cache;
-  const channels = discordChannels?.filter((channel) =>
-    matchHandler.channelsId.includes(channel.id)
-  );
-  const category = discordChannels?.find((channel) => channel.id === matchHandler.category);
 
-  channels?.forEach((channel) => channel.delete());
-  category?.delete();
+  const channels = discordChannels?.filter((channel) =>
+    channelsAndCategory.channelsId.includes(channel.id)
+  );
+  const category = discordChannels?.find(
+    (channel) => channel.id === channelsAndCategory.categoryId
+  );
+
+  if (!channels || !category) return false;
+
+  console.log(
+    'Canais: ',
+    channels?.map((channel) => channel.name)
+  );
+  console.log('Categoria: ', category?.name);
+
+  channels?.forEach(async (channel) => await channel.delete());
+  await category?.delete();
+
+  return true;
 }

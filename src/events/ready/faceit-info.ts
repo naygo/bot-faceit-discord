@@ -1,4 +1,4 @@
-import keys from '@/keys';
+import keys from '@/keys/env-keys';
 import colors from '@/keys/colors';
 import { specialCaracteres } from '@/keys/special-caracteres';
 import { HubMatch, HubMatchMap, HubMatchRoster, HubMatchTeams } from '@/models/types';
@@ -17,7 +17,7 @@ interface CurrentMatchesInfo {
   };
 }
 
-export default event('ready', async ({ log }, client) => {
+export default event('ready', async ({ log, client }) => {
   try {
     await updateEmbedInfo(client);
   } catch (error) {
@@ -50,7 +50,7 @@ async function updateEmbedInfo(client: Client) {
     await channelFaceitInfo.send(message);
   }
 
-  await sleep(5)
+  await sleep(5);
   await updateEmbedInfo(client);
 }
 

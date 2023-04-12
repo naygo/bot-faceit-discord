@@ -34,11 +34,9 @@ export default command(meta, async ({ interaction }) => {
     throw new Error('Nickname não informado');
   }
 
-  // await interaction.deferReply({ ephemeral: true });
   await interaction.deferReply({ ephemeral: true });
 
   const player = await getPlayerOnHub(nickname);
-  console.log(player);
   const playerHistory = (await getPlayerHistoryOnHub(player.user_id)).items.filter(
     (match) => match.status === 'finished'
   );
@@ -65,7 +63,7 @@ export default command(meta, async ({ interaction }) => {
   await interaction.editReply({ embeds: [embed], components: [components] });
 });
 
-export async function getPlayerOnHub(nickname: string): Promise<Members> {
+async function getPlayerOnHub(nickname: string): Promise<Members> {
   const players = await getHubPlayers();
   const player = players.find((player) => player.nickname === nickname);
 

@@ -8,10 +8,12 @@ export interface Keys {
   // Discord
   testGuildId: string;
   // clientID: string;
-
+  
   // Channels
   faceitInfoChannelId: string;
-  testsChannelId: string;
-  // historyChannelId: string;
+  // testsChannelId: string;
+  historicChannelId: string;
+  leaderboardChannelId: string;
   positionVoiceChannels: string;
+  memberLeftChannelId: string;
 }

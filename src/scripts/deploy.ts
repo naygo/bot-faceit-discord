@@ -1,5 +1,5 @@
 import commands from '@/commands';
-import keys from '@/keys';
+import keys from '@/keys/env-keys';
 import { APIUser, REST, Routes } from 'discord.js';
 
 const body = commands.map((command) => command.meta.toJSON());

@@ -1,5 +1,5 @@
 import events from '@/events';
-import keys from '@/keys';
+import keys from '@/keys/env-keys';
 import { registerEvents } from '@/utils';
 import { Client, GatewayIntentBits } from 'discord.js';
 

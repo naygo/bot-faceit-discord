@@ -20,23 +20,3 @@ export default command(meta, async ({ interaction }) => {
     content: message ?? '🏓 Pong!'
   });
 });
-
-// import { EmbedBuilder } from '@discordjs/builders';
-// import { ChatInputCommandInteraction } from 'discord.js';
-
-// export default async function ping(interaction: ChatInputCommandInteraction) {
-//   const embed = new EmbedBuilder()
-//     .setAuthor({ name: interaction.user.username, iconURL: interaction.user.displayAvatarURL() })
-//     .setDescription(`🏓 Carregando ping...`)
-//     .setTimestamp(new Date());
-
-//   const embed2 = new EmbedBuilder()
-//     .setAuthor({ name: interaction.user.username, iconURL: interaction.user.displayAvatarURL() })
-//     .setDescription(`🏓 Pong!`)
-//     .setTimestamp(new Date());
-
-//   const messageReplied = await interaction.reply({ embeds: [embed] });
-//   setTimeout(() => {
-//     messageReplied.edit({ embeds: [embed2] });
-//   }, 3000);
-// }

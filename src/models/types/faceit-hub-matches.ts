@@ -1,3 +1,4 @@
+// `/hubs/${keys.faceitHubId}/matches`
 export interface FaceitHubMatches {
   items: HubMatch[];
   start: number;
