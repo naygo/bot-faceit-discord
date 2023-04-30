@@ -1,5 +1,5 @@
 import { configPaginationButtons, generatePlayerHistoryEmbed } from '@/commands/player-history';
-import { getPlayerHistoryOnHub } from '@/services/faceit-api';
+import { getPlayerHistoryOnHub } from '@/faceit-service';
 import { EditReply, Reply, event, generatePaginationButtons, paginationAction } from '@/utils';
 import { readIdPage } from '@/utils/page-ids';
 

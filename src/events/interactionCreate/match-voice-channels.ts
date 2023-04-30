@@ -1,11 +1,11 @@
 import { ButtonInteraction, ChannelType, Client } from 'discord.js';
 import { HubMatch, MatchInfo } from '@/models/types';
-import { getHubMatches, getMatchInfo } from '@/services/faceit-api';
 import { EditReply, Reply, event, sleep } from '@/utils';
 import keys from '@/keys/env-keys';
 import { createDiscordChannel } from '@/utils/create-channel';
 import { handleLeaderboard } from '../ready/leaderboard';
 import { sendMatchFinisedEmbed } from '@/modules/match-finshed';
+import { getHubMatches, getMatchInfo } from '@/faceit-service';
 
 interface MatchHandler {
   channelsId: string[];
@@ -41,10 +41,10 @@ async function handleNewMatch(match: HubMatch, interaction: ButtonInteraction, c
   const { payload } = await getMatchInfo(match.match_id);
 
   await forMatchToEnd(payload);
-  
+
   const isChannelsDeleted = await deleteChannelsAndCategory(channelsAndCategory, interaction);
   isChannelsDeleted && (await sendMatchFinisedEmbed(match, client));
-  
+
   await handleLeaderboard(client);
 }
 

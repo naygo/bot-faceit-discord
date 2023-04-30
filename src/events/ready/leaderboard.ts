@@ -1,9 +1,9 @@
 import keys from '@/keys/env-keys';
 import colors from '@/keys/colors';
 import { FaceitLeaderboard } from '@/models/types/faceit-leaderboard';
-import { getHubLeaderboard } from '@/services/faceit-api';
 import { event } from '@/utils';
 import { ChannelType, Client, EmbedBuilder } from 'discord.js';
+import { getHubLeaderboard } from '@/faceit-service';
 
 export default event('ready', async ({ log, client }) => {
   try {
