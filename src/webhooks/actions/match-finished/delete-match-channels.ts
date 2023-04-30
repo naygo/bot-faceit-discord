@@ -4,20 +4,20 @@ import { MatchCreated } from '../actions.types';
 
 const guild = client.guilds.cache.get(keys.guildId);
 
-export function handleFinishedMatch(match: MatchCreated) {
-  deleteVoiceChannels(match);
-  deleteCategory(match);
+export async function handleFinishedMatch(match: MatchCreated): Promise<void> {
+  await deleteVoiceChannels(match);
+  await deleteCategory(match);
 }
 
-function deleteCategory(match: MatchCreated) {
+async function deleteCategory(match: MatchCreated) {
   const categoryChannel = guild?.channels.cache.find((channel) => channel.name === match.matchName);
-  categoryChannel?.delete();
+  await categoryChannel?.delete();
 }
 
-function deleteVoiceChannels(match: MatchCreated) {
+async function deleteVoiceChannels(match: MatchCreated) {
   const voiceChannels = [
     guild?.channels.cache.find((channel) => channel.name === match.team1),
     guild?.channels.cache.find((channel) => channel.name === match.team2),
   ];
-  voiceChannels.forEach((channel) => channel?.delete());
+  voiceChannels.forEach(async (channel) => await channel?.delete());
 }
