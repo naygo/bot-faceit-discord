@@ -6,7 +6,7 @@ export interface Keys {
   faceitHubId: string;
 
   // Discord
-  testGuildId: string;
+  guildId: string;
   // clientID: string;
   
   // Channels
