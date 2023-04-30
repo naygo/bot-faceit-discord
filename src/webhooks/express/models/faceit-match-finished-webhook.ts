@@ -1,6 +1,6 @@
 import { FaceitWebhook } from './faceit-webhook';
 
-interface FaceitMatchEndedWebhookPayload {
+interface FaceitMatchFinishedWebhookPayload {
   id: string;
   organizer_id: string;
   region: string;
@@ -15,4 +15,4 @@ interface FaceitMatchEndedWebhookPayload {
   updated_at: string;
 }
 
-export type FaceitMatchEndedWebhook = FaceitWebhook<FaceitMatchEndedWebhookPayload>;
+export type FaceitMatchFinishedWebhook = FaceitWebhook<FaceitMatchFinishedWebhookPayload>;
