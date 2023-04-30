@@ -1,32 +1,34 @@
 import { client } from '@/index';
 import keys from '@/keys/env-keys';
-import { ChannelType, PermissionsBitField } from 'discord.js';
+import { CategoryChannel, ChannelType, PermissionsBitField, VoiceChannel } from 'discord.js';
 import { MatchCreated } from '../actions.types';
 
-const guild = client.guilds.cache.get(keys.guildId);
-
 export async function handleNewMatch(match: MatchCreated): Promise<void> {
-  await createVoiceChannels(match);
-  await createCategory(match);
+  const categoryChannelId = await createCategory(match);
+  await createVoiceChannels(match, categoryChannelId);
 }
 
-async function createCategory(match: MatchCreated): Promise<void> {
-  await createChannel(match.matchName, ChannelType.GuildCategory);
+async function createCategory(match: MatchCreated): Promise<string> {
+  const categoryChannel = await createChannel(match.matchName, ChannelType.GuildCategory);
+  return categoryChannel.id;
 }
 
-async function createVoiceChannels(match: MatchCreated): Promise<void> {
-  await createChannel(match.team1, ChannelType.GuildVoice);
-  await createChannel(match.team2, ChannelType.GuildVoice);
+async function createVoiceChannels(match: MatchCreated, categoryChannelId: string): Promise<void> {
+  await createChannel(match.team1, ChannelType.GuildVoice, categoryChannelId);
+  await createChannel(match.team2, ChannelType.GuildVoice, categoryChannelId);
 }
 
 async function createChannel(
   name: string,
-  type: ChannelType.GuildCategory | ChannelType.GuildVoice
-): Promise<void> {
+  type: ChannelType.GuildCategory | ChannelType.GuildVoice,
+  parent?: string
+): Promise<CategoryChannel | VoiceChannel> {
+  const guild = client.guilds.cache.get(keys.guildId);
   const channel = await guild?.channels.create({
     name,
     type,
     position: +keys.positionVoiceChannels,
+    parent,
     permissionOverwrites: [
       {
         id: guild?.roles.everyone.id,
@@ -43,4 +45,5 @@ async function createChannel(
   });
 
   if (!channel) throw new Error('Error creating channel');
+  return channel;
 }

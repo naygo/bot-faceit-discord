@@ -17,13 +17,13 @@ export default event('interactionCreate', async ({ log, client }, interaction) =
   if (interaction.customId !== 'match-voice-channels') return;
 
   try {
-    const matches = await getHubMatches();
+    // const matches = await getHubMatches();
 
-    for (const match of matches.items) {
-      match.status == 'MANUAL_RESULT' && handleNewMatch(match, interaction, client);
-    }
+    // // for (const match of matches.items) {
+    // //   match.status == 'MANUAL_RESULT' && handleNewMatch(match, interaction, client);
+    // // }
 
-    await interaction.deferUpdate();
+    // await interaction.deferUpdate();
   } catch (error) {
     log('[Match Voice Channels Error]', error);
 
