@@ -1,6 +1,6 @@
 import { client } from '@/index';
 import keys from '@/keys/env-keys';
-import { MatchCreated } from './actions.types';
+import { MatchCreated } from '../actions.types';
 
 const guild = client.guilds.cache.get(keys.guildId);
 
