@@ -12,9 +12,9 @@ import {
   generatePaginationButtons,
   paginationAction,
 } from '@/utils';
-import { getHubPlayers, getPlayerHistoryOnHub } from '@/services/faceit-api';
 import { Members, PlayerHistory } from '@/models/types';
 import colors from '@/keys/colors';
+import { getHubPlayers, getPlayerHistoryOnHub } from '@/faceit-service';
 
 const meta = new SlashCommandBuilder()
   .setName('historico')
