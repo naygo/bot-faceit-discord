@@ -11,8 +11,8 @@ export async function handleMatchFinishedController(req: Request, res: Response)
 
     const matchInfo = await getMatchInfo(matchId);
 
-    const team1 = matchInfo.payload.teams.faction1.name.replace('team_', 'Team');
-    const team2 = matchInfo.payload.teams.faction2.name.replace('team_', 'Team');
+    const team1 = matchInfo.payload.teams.faction1.name.replace('team_', 'Team ');
+    const team2 = matchInfo.payload.teams.faction2.name.replace('team_', 'Team ');
     const matchName = `${team1} x ${team2}`;
 
     await handleFinishedMatch({
