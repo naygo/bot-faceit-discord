@@ -1,7 +1,7 @@
 import { Router } from 'express';
-import { handleMatchCreatedController } from '../controllers';
+import { handleMatchCreatedController, handleMatchFinishedController } from '../controllers';
 
 export const webhooksRouter = Router();
 
 webhooksRouter.post('/match-created', handleMatchCreatedController);
-webhooksRouter.post('/match-finished', handleMatchCreatedController);
+webhooksRouter.post('/match-finished', handleMatchFinishedController);
