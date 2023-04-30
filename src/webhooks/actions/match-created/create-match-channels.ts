@@ -5,7 +5,7 @@ import { MatchCreated } from '../actions.types';
 
 const guild = client.guilds.cache.get(keys.guildId);
 
-export async function handleNewMatch(match: MatchCreated) {
+export async function handleNewMatch(match: MatchCreated): Promise<void> {
   await createVoiceChannels(match);
   await createCategory(match);
 }
