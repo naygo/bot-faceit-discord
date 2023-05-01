@@ -11,6 +11,7 @@ export async function handleMatchCreatedController(req: Request, res: Response) 
     const matchInfo = await getMatchInfo(matchId);
 
     console.log('body -> ', req.body)
+    console.log('matchInfo -> ', matchInfo)
 
     const team1 = matchInfo.payload.teams.faction1.name.replace('team_', 'Team ');
     const team2 = matchInfo.payload.teams.faction2.name.replace('team_', 'Team ');
