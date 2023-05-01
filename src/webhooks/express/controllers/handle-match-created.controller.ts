@@ -9,8 +9,11 @@ export async function handleMatchCreatedController(req: Request, res: Response) 
     const matchId = body.payload.id;
 
     const matchInfo = await getMatchInfo(matchId);
-    
-    if (!matchInfo.hasOwnProperty('startedAt')) return;
+
+    if (!matchInfo.hasOwnProperty('startedAt'))
+      return res.status(404).json({
+        message: 'acknowledged',
+      }); // here the maps are already vetoed
 
     const team1 = matchInfo.payload.teams.faction1.name.replace('team_', 'Team ');
     const team2 = matchInfo.payload.teams.faction2.name.replace('team_', 'Team ');
