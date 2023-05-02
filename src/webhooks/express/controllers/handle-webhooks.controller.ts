@@ -7,6 +7,9 @@ export async function handleWebhooksController(req: Request, res: Response) {
     console.log('handleWebhooksController ------------------------------------------ ')
     console.log(body);
 
+    if(body.event == 'match_status_finished')
+      console.log(body.teams);
+
     return res.status(200).json({
       body
     });
