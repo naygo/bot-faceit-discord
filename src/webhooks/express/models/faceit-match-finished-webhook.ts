@@ -11,8 +11,15 @@ interface FaceitMatchFinishedWebhookPayload {
     name: string;
     type: string;
   };
+  teams: {
+    name: string;
+    id: string;
+    score: number;
+  }[];
   created_at: string;
   updated_at: string;
+  started_at: string;
+  finished_at: string;
 }
 
 export type FaceitMatchFinishedWebhook = FaceitWebhook<FaceitMatchFinishedWebhookPayload>;
