@@ -4,6 +4,8 @@ import { handleNewMatch } from '@/webhooks/actions/match-created/create-match-ch
 
 export async function handleMatchCreatedController(req: Request, res: Response) {
   try {
+    console.log('-------------------------- created ------------------------------------------ ')
+    console.log(req.body)
     const [matchInfo] = (await getHubMatches()).items;
 
     const team1 = matchInfo.teams.faction1.name.replace('team_', 'Team ');
