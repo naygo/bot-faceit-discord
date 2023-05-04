@@ -10,13 +10,10 @@ const keys: Keys = {
   faceitHubId: process.env.FACEIT_HUB_ID ?? 'NULL',
 
   guildId: process.env.GUILD_ID ?? 'NULL',
-  // clientID: process.env.CLIENT_ID ?? 'NULL',
 
   faceitInfoChannelId: process.env.FACEIT_INFO_CHANNEL_ID ?? 'NULL',
-  // testsChannelId: process.env.TESTS_CHANNEL_ID ?? 'NULL',
   historicChannelId: process.env.HISTORIC_CHANNEL_ID ?? 'NULL',
   leaderboardChannelId: process.env.LEADERBOARD_CHANNEL_ID ?? 'NULL',
-  memberLeftChannelId: process.env.MEMBER_LEFT_CHANNEL_ID ?? 'NULL',
 
   positionVoiceChannels: process.env.POSITION_VOICE_CHANNELS ?? 'NULL',
 };

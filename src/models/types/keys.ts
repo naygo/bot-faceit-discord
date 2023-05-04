@@ -15,5 +15,4 @@ export interface Keys {
   historicChannelId: string;
   leaderboardChannelId: string;
   positionVoiceChannels: string;
-  memberLeftChannelId: string;
 }
