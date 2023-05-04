@@ -7,23 +7,15 @@ const rest = new REST({ version: '10' }).setToken(keys.botToken);
 
 async function main() {
   const currentUser = (await rest.get(Routes.user())) as APIUser;
-  const endpoint =
-    process.env.NODE_ENV === 'production'
-      ? Routes.applicationCommands(currentUser.id)
-      : Routes.applicationGuildCommands(currentUser.id, keys.testGuildId);
-
+  const endpoint = Routes.applicationCommands(currentUser.id);
   await rest.put(endpoint, { body });
-
   return currentUser;
 }
 
 main()
   .then((user) => {
     const tag = `${user.username}#${user.discriminator}`;
-    const response = process.env.NODE_ENV === 'production'
-      ? `Successfully released commands in production as ${tag}!`
-      : `Successfully registered commands for development in ${keys.testGuildId} as ${tag}!`
-
+    const response = `Successfully released commands in for ${tag}!`;
     console.log(response);
   })
   .catch(console.error);
