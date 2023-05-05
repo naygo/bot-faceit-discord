@@ -4,6 +4,8 @@ import { CategoryChannel, ChannelType, PermissionsBitField, VoiceChannel } from 
 import { MatchCreated } from '../actions.types';
 
 export async function handleNewMatch(match: MatchCreated): Promise<void> {
+  if (channelsAlreadyCreated(match.matchName)) return console.log('Channel already exists');
+
   const categoryChannelId = await createCategory(match);
   await createVoiceChannels(match, categoryChannelId);
 }
@@ -45,5 +47,11 @@ async function createChannel(
   });
 
   if (!channel) throw new Error('Error creating channel');
+  return channel;
+}
+
+function channelsAlreadyCreated(channelName: string) {
+  const guild = client.guilds.cache.get(keys.guildId);
+  const channel = guild?.channels.cache.find((channel) => channel.name === channelName);
   return channel;
 }

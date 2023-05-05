@@ -3,6 +3,6 @@ import { handleMatchCreatedController, handleMatchFinishedController, handleWebh
 
 export const webhooksRouter = Router();
 
+webhooksRouter.post('/', handleWebhooksController);
 webhooksRouter.post('/match-created', handleMatchCreatedController);
 webhooksRouter.post('/match-finished', handleMatchFinishedController);
-webhooksRouter.post('/webhooks', handleWebhooksController);

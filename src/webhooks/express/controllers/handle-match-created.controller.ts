@@ -4,10 +4,22 @@ import { handleNewMatch } from '@/webhooks/actions/match-created/create-match-ch
 
 export async function handleMatchCreatedController(req: Request, res: Response) {
   try {
+    console.log('--------------- created ------------------- ')
+
     const [matchInfo] = (await getHubMatches()).items;
     
-    console.log('-------------------------- created ------------------------------------------ ')
-    console.log(req.body)
+    console.log({
+      matchInfo,
+      faction1: matchInfo?.teams?.faction1,
+      faction2: matchInfo?.teams?.faction2,
+    })
+
+    if(!matchInfo.teams.faction1 || !matchInfo.teams.faction2) {
+      return res.status(200).json({
+        message: 'acknowledged',
+      });
+    }
+    
     const team1 = matchInfo.teams.faction1.name.replace('team_', 'Team ');
     const team2 = matchInfo.teams.faction2.name.replace('team_', 'Team ');
     const matchName = `${team1} x ${team2}`;
