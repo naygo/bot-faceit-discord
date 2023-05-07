@@ -6,7 +6,7 @@ import { sleep } from '@/utils';
 export async function handleMatchCreatedController(req: Request, res: Response) {
   try {
     console.log('--------------- created ------------------- ');
-    const matchId = req.body.payload.match_id;
+    const matchId = req.body.payload.id;
     const { payload } = await getMatchInfo(matchId);
 
     const faction1 = payload.teams?.faction1?.name;
