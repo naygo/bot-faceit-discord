@@ -1,27 +1,24 @@
 import { Request, Response } from 'express';
-import { getHubMatches } from '@/faceit-service';
+import { getHubMatches, getMatchInfo } from '@/faceit-service';
 import { handleNewMatch } from '@/webhooks/actions/match-created/create-match-channels';
+import { sleep } from '@/utils';
 
 export async function handleMatchCreatedController(req: Request, res: Response) {
   try {
-    console.log('--------------- created ------------------- ')
+    console.log('--------------- created ------------------- ');
+    const matchId = req.body.payload.match_id;
+    const { payload } = await getMatchInfo(matchId);
 
-    const [matchInfo] = (await getHubMatches()).items;
-    
-    console.log({
-      matchInfo,
-      faction1: matchInfo?.teams?.faction1,
-      faction2: matchInfo?.teams?.faction2,
-    })
+    const faction1 = payload.teams?.faction1?.name;
+    const faction2 = payload.teams?.faction2?.name;
 
-    if(!matchInfo.teams.faction1 || !matchInfo.teams.faction2) {
-      return res.status(200).json({
-        message: 'acknowledged',
-      });
+    while (!faction1 || !faction2) {
+      console.log(`Waiting for match ${matchId} to start...`);
+      sleep(10);
     }
-    
-    const team1 = matchInfo.teams.faction1.name.replace('team_', 'Team ');
-    const team2 = matchInfo.teams.faction2.name.replace('team_', 'Team ');
+
+    const team1 = faction1.replace('team_', 'Team ');
+    const team2 = faction2.replace('team_', 'Team ');
     const matchName = `${team1} x ${team2}`;
 
     await handleNewMatch({
