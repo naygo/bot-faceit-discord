@@ -14,7 +14,7 @@ export async function handleMatchCreatedController(req: Request, res: Response) 
 
     while (!faction1 || !faction2) {
       console.log(`Waiting for match ${matchId} to start...`);
-      sleep(30);
+      await sleep(30);
     }
 
     const team1 = faction1.replace('team_', 'Team ');
