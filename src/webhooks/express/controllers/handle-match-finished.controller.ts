@@ -6,6 +6,9 @@ export async function handleMatchFinishedController(req: Request, res: Response)
   try {
     const body: FaceitMatchFinishedWebhook = req.body;
 
+    console.log('--------------- finished ------------------- ');
+    console.log(body)
+
     const team1 = body.payload.teams[0].name.replace('team_', 'Team ');
     const team2 = body.payload.teams[1].name.replace('team_', 'Team ');
     const matchName = `${team1} x ${team2}`;

@@ -7,17 +7,16 @@ export async function handleMatchCreatedController(req: Request, res: Response) 
   try {
     console.log('--------------- created ------------------- ');
     const matchId = req.body.payload.id;
-    const { payload } = await getMatchInfo(matchId);
+    let result = await getMatchInfo(matchId);
 
-    const faction1 = payload.teams?.faction1?.name;
-    const faction2 = payload.teams?.faction2?.name;
-    const state = payload.state;
-
-    while (state !== 'MANUAL_RESULT') {
-      console.log(state)
+    while (result.payload.state !== 'MANUAL_RESULT') {
       console.log(`Waiting for match ${matchId} to start...`);
       await sleep(30);
+      result = await getMatchInfo(matchId);
     }
+
+    const faction1 = result.payload.teams?.faction1?.name;
+    const faction2 = result.payload.teams?.faction2?.name;
 
     const team1 = faction1.replace('team_', 'Team ');
     const team2 = faction2.replace('team_', 'Team ');
