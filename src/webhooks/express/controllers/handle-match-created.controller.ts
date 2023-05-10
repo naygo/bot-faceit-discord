@@ -11,8 +11,9 @@ export async function handleMatchCreatedController(req: Request, res: Response) 
 
     const faction1 = payload.teams?.faction1?.name;
     const faction2 = payload.teams?.faction2?.name;
+    const state = payload.state;
 
-    while (!faction1 || !faction2) {
+    while (state !== 'MANUAL_RESULT') {
       console.log(`Waiting for match ${matchId} to start...`);
       await sleep(30);
     }
