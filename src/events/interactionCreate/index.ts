@@ -1,4 +1,4 @@
-import { Event } from '@/models/types';
+import { Event } from '@/types';
 
 import commands from './commands';
 import playerHistory from './player-history';

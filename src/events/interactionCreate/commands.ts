@@ -1,5 +1,5 @@
 import commands from '@/commands';
-import { Command } from '@/models/types';
+import { Command } from '@/types';
 import { EditReply, Reply, event } from '@/utils';
 
 const allCommands = commands.reduce((acc, command) => {

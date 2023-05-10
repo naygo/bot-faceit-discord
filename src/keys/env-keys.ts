@@ -1,4 +1,4 @@
-import { Keys } from '@/models/types';
+import { Keys } from '@/types';
 
 import dotenv from 'dotenv';
 dotenv.config();
@@ -17,8 +17,6 @@ const keys: Keys = {
 
   positionVoiceChannels: process.env.POSITION_VOICE_CHANNELS ?? 'NULL',
 };
-
-console.log({ keys })
 
 if (Object.values(keys).includes('NULL')) throw new Error('Some key is not defined!');
 

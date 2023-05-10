@@ -1,4 +1,4 @@
-import { FaceitHubMatches, FaceitMatchInfo } from '@/models/types';
+import { FaceitHubMatches, FaceitMatchInfo } from '@/types';
 import { faceitApiClient, faceitOpenClient } from './api';
 import keys from '@/keys/env-keys';
 

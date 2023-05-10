@@ -12,7 +12,7 @@ import {
   generatePaginationButtons,
   paginationAction,
 } from '@/utils';
-import { Members, PlayerHistory } from '@/models/types';
+import { Members, PlayerHistory } from '@/types';
 import colors from '@/keys/colors';
 import { getHubPlayers, getPlayerHistoryOnHub } from '@/faceit-service';
 

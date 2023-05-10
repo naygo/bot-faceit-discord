@@ -1,7 +1,7 @@
 import keys from '@/keys/env-keys';
 import colors from '@/keys/colors';
 import { specialCaracteres } from '@/keys/special-caracteres';
-import { HubMatch, HubMatchMap, HubMatchRoster, HubMatchTeams } from '@/models/types';
+import { HubMatch, HubMatchMap, HubMatchRoster, HubMatchTeams } from '@/types';
 import { event, formatDateFaceit, queueReactions, sleep } from '@/utils';
 import { ChannelType, Client, EmbedBuilder } from 'discord.js';
 import { getHubMatches, getPlayersOnQueue } from '@/faceit-service';

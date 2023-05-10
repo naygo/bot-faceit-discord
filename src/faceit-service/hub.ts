@@ -1,6 +1,6 @@
 import keys from '@/keys/env-keys';
 import { faceitOpenClient } from './api';
-import { FaceitHubDetails, FaceitHubMembers, Members } from '@/models/types';
+import { FaceitHubDetails, FaceitHubMembers, Members } from '@/types';
 
 export async function getHubDetails(): Promise<FaceitHubDetails> {
   const response = await faceitOpenClient.get(`/hubs/${keys.faceitHubId}`);

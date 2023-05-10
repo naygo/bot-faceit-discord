@@ -1,4 +1,4 @@
-import { Command, CommandEventExec, CommandMeta } from '@/models/types';
+import { Command, CommandEventExec, CommandMeta } from '@/types';
 
 export function command(meta: CommandMeta, exec: CommandEventExec): Command {
   return { meta, exec };

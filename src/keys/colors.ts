@@ -1,4 +1,4 @@
-import { Colors } from '@/models/types';
+import { Colors } from '@/types';
 
 export const colors: Colors = {
   yellow: '#e09600',

@@ -1,4 +1,4 @@
-import { FaceitLeaderboard, Leaderboard } from '@/models/types/faceit-leaderboard';
+import { FaceitLeaderboard, Leaderboard } from '@/types/faceit/leaderboard';
 import { faceitOpenClient } from './api';
 import keys from '@/keys/env-keys';
 

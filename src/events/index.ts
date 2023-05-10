@@ -1,4 +1,4 @@
-import { Event } from '@/models/types';
+import { Event } from '@/types';
 
 import ready from './ready';
 import interactionCreate from './interactionCreate';

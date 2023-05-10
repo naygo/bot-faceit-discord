@@ -1,4 +1,4 @@
-import { Event } from '@/models/types';
+import { Event } from '@/types';
 
 import login from './login';
 import faceitInfo from './faceit-info';

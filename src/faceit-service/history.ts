@@ -1,4 +1,4 @@
-import { FaceitPlayerHistory } from '@/models/types';
+import { FaceitPlayerHistory } from '@/types';
 import { faceitOpenClient } from './api';
 import keys from '@/keys/env-keys';
 

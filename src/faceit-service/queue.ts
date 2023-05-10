@@ -1,4 +1,4 @@
-import { FaceitQueue } from '@/models/types';
+import { FaceitQueue } from '@/types';
 import { faceitApiClient } from './api';
 import keys from '@/keys/env-keys';
 
