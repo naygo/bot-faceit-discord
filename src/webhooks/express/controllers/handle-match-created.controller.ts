@@ -9,11 +9,18 @@ export async function handleMatchCreatedController(req: Request, res: Response) 
     const matchId = req.body.payload.id;
     let result = await getMatchInfo(matchId);
 
-    console.log(`${matchId} --- ${result.payload.state}`)
-    while (result.payload.state !== 'MANUAL_RESULT') {
+    console.log(`${matchId} --- ${result.payload.state}`);
+    while (result.payload.state !== 'MANUAL_RESULT' && result.payload.state !== 'CANCELLED') {
       console.log(`${matchId} --- Waiting for match to start...`);
       await sleep(30);
       result = await getMatchInfo(matchId);
+    }
+
+    if (result.payload.state === 'CANCELLED') {
+      console.log(`${matchId} --- Match cancelled`);
+      return res.status(200).json({
+        message: 'acknowledged',
+      });
     }
 
     const faction1 = result.payload.teams?.faction1?.name;
