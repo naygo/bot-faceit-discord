@@ -9,8 +9,8 @@ export async function handleMatchCreatedController(req: Request, res: Response) 
     const matchId = req.body.payload.id;
     let result = await getMatchInfo(matchId);
 
-    console.log(result.payload.state)
-    while (`${matchId} --- ${result.payload.state}`) {
+    console.log(`${matchId} --- ${result.payload.state}`)
+    while (result.payload.state !== 'MANUAL_RESULT') {
       console.log(`${matchId} --- Waiting for match to start...`);
       await sleep(30);
       result = await getMatchInfo(matchId);
