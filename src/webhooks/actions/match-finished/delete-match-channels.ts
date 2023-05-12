@@ -5,9 +5,6 @@ import { handleLeaderboard } from '@/events/ready/leaderboard';
 import { sleep } from '@/utils';
 
 export async function handleFinishedMatch(match: MatchCreated): Promise<void> {
-  console.log(`${match.matchName} ---- Waiting 3 minutes to delete channels ----`)
-  await sleep(180);
-
   console.log(`${match.matchName} ---- Deleting channels ----`);
   await deleteVoiceChannels(match);
   await deleteCategory(match);
