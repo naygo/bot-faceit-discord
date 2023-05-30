@@ -7,7 +7,6 @@ export async function handleWebhooksController(req: Request, res: Response) {
 
     console.log(' ---------------------handleWebhooksController ------------------------- ');
     console.log(req.body);
-    console.log('---------------------------------------------------------------------------')
 
     return res.status(200).json({
       body,
