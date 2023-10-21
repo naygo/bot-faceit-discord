@@ -37,10 +37,7 @@ async function createChannel(
         deny: [PermissionsBitField.Flags.ViewChannel],
       },
       {
-        // TO-DO: change this to a dinamic role id
-        id:
-          guild?.roles?.cache?.find((role) => role.name === '🍙・Membro')?.id ||
-          '1089662861216854067',
+        id: keys.memberRoleId,
         allow: [PermissionsBitField.Flags.ViewChannel],
       },
     ],

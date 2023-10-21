@@ -14,6 +14,7 @@ const keys: Keys = {
   faceitInfoChannelId: process.env.FACEIT_INFO_CHANNEL_ID ?? 'NULL',
   historicChannelId: process.env.HISTORIC_CHANNEL_ID ?? 'NULL',
   leaderboardChannelId: process.env.LEADERBOARD_CHANNEL_ID ?? 'NULL',
+  memberRoleId: process.env.MEMBER_ROLE_ID ?? 'NULL',
 
   positionVoiceChannels: process.env.POSITION_VOICE_CHANNELS ?? 'NULL',
 };
