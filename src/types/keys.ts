@@ -8,6 +8,8 @@ export interface Keys {
   // Discord
   guildId: string;
   memberRoleId: string;
+  coachRoleId: string;
+  casterRoleId: string;
 
   // Channels
   faceitInfoChannelId: string;

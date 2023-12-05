@@ -40,6 +40,14 @@ async function createChannel(
         id: keys.memberRoleId,
         allow: [PermissionsBitField.Flags.ViewChannel],
       },
+      {
+        id: keys.coachRoleId,
+        allow: [PermissionsBitField.Flags.ViewChannel],
+      },
+      {
+        id: keys.casterRoleId,
+        allow: [PermissionsBitField.Flags.ViewChannel],
+      },
     ],
   });
 
